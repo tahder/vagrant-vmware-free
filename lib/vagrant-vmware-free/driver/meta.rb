@@ -35,6 +35,7 @@ module VagrantPlugins
           driver_map = {
             fusion: {
               '6.0' => Fusion_6,
+              '8.5' => Fusion_8,
             },
           }
 
@@ -113,7 +114,7 @@ module VagrantPlugins
 
             host[:version] = version
           end
-          
+
           host
         end
       end

@@ -44,6 +44,7 @@ module VagrantPlugins
       :Suspend,
 
       :WaitForVMTools,
+      :WaitForNetwork,
       :SetNetwork,
       :GetNetworkAddress].each do |sym|
         filename = sym.to_s.gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').gsub(/([a-z\d])([A-Z])/,'\1_\2').tr("-", "_").downcase
@@ -77,6 +78,7 @@ module VagrantPlugins
           # b.use Customize, "pre-boot"
           b.use Boot
           b.use WaitForVMTools
+          b.use WaitForNetwork
           b.use GetNetworkAddress
           # b.use Customize, "post-boot"
           b.use WaitForCommunicator, [:starting, :running]
@@ -168,10 +170,10 @@ module VagrantPlugins
                 next if !env2[:result]
                 b3.use Resume
               end
-              
+
               b.use WaitForVMTools
               b.use GetNetworkAddress
-              
+
               b2.use Call, GracefulHalt, :poweroff, :running do |env2, b3|
                 if !env2[:result]
                   b3.use ForcedHalt

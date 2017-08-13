@@ -6,7 +6,7 @@ module VagrantPlugins
       name 'VMWare Worksation/Fusion provider'
 
       description <<-EOF
-      Manage and control VMWare Worksation and VMWare Fusion virtual machines
+      Manage and control VMWare Workstation and VMWare Fusion virtual machines
       EOF
 
       provider :vmware_free do
@@ -20,7 +20,7 @@ module VagrantPlugins
       end
 
     end
-    
+
     autoload :Action, File.expand_path('../action', __FILE__)
     autoload :Errors, File.expand_path('../errors', __FILE__)
 
@@ -30,6 +30,7 @@ module VagrantPlugins
       autoload :Base, File.expand_path('../driver/base', __FILE__)
       autoload :Fusion, File.expand_path('../driver/fusion', __FILE__)
       autoload :Fusion_6, File.expand_path('../driver/fusion_6', __FILE__)
+      autoload :Fusion_8, File.expand_path('../driver/fusion_8', __FILE__)
     end
 
     module Model

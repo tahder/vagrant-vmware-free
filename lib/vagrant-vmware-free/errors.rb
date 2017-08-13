@@ -4,6 +4,7 @@ module VagrantPlugins
       class CommandUnavailable < StandardError; end
       class CommandUnavailableWindows < StandardError; end
       class VMWareNotDetected < StandardError; end
+      class VMWareInvalidVersion < StandardError; end
     end
   end
 end
