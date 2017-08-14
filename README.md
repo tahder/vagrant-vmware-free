@@ -8,3 +8,36 @@ This plugin is not related in any way to Hashicorp or their VMware offering. The
 Since this is a new project, a good knowledge of Vagrant plugins and VMware is required to use.
 
 The code is provided under the MIT license (just like Vagrant).
+
+Install
+==
+
+```
+git clone https://github.com/dguerri/vagrant-vmware-free.git
+cd vagrant-vmware-free
+gem build vagrant-vmware-free.gemspec
+vagrant plugin install ./vagrant-vmware-free-0.0.2.gem
+```
+
+How to use the provider
+==
+You need to build a box with the right provider (i.e. `vmware_free`)
+
+Then, you need a `Vagrantfile`. For instance:
+```
+Vagrant.configure("2") do |config|
+  config.vm.box = "test-box"
+end
+```
+
+Finally, you need to run vagrant
+```
+vagrant up --provider=vmware_free
+```
+
+Note
+==
+
+Currently, this provider won't support parallel 'ups'.
+
+At least for Fusion, do not open vmware GUI while using vagrant. Otherwise you will get a nice stack trace (with error code from Vix == 15) 

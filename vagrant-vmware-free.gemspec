@@ -1,6 +1,6 @@
 Gem::Specification.new do |g|
   g.name = 'vagrant-vmware-free'
-  g.version = '0.0.1'
+  g.version = '0.0.2'
   g.platform = Gem::Platform::RUBY
   g.license = 'MIT'
   g.authors = 'Ori Shavit'
