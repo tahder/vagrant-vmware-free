@@ -34,8 +34,10 @@ module VagrantPlugins
 
           driver_map = {
             fusion: {
-              '6.0' => Fusion_6,
-              '8.5' => Fusion_8,
+              '6.0' => Fusion,
+              '7.0' => Fusion,
+              '7.1' => Fusion,
+              '8.5' => Fusion,
             },
           }
 

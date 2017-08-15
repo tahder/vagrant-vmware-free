@@ -29,8 +29,6 @@ module VagrantPlugins
       autoload :Meta, File.expand_path('../driver/meta', __FILE__)
       autoload :Base, File.expand_path('../driver/base', __FILE__)
       autoload :Fusion, File.expand_path('../driver/fusion', __FILE__)
-      autoload :Fusion_6, File.expand_path('../driver/fusion_6', __FILE__)
-      autoload :Fusion_8, File.expand_path('../driver/fusion_8', __FILE__)
     end
 
     module Model

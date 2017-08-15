@@ -44,9 +44,8 @@ module VagrantPlugins
       :Suspend,
 
       :WaitForVMTools,
-      :WaitForNetwork,
       :SetNetwork,
-      :GetNetworkAddress].each do |sym|
+    ].each do |sym|
         filename = sym.to_s.gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').gsub(/([a-z\d])([A-Z])/,'\1_\2').tr("-", "_").downcase
 
         autoload sym, File.expand_path("../action/#{filename}", __FILE__)
@@ -62,7 +61,7 @@ module VagrantPlugins
           b.use SetName
           b.use SetNetwork
           b.use Provision
-          b.use EnvSet, :port_collision_repair => true
+          b.use EnvSet, port_collision_repair: true
           # b.use PrepareForwardedPortCollisionParams
           # b.use HandleForwardedPortCollisions
           # b.use PruneNFSExports
@@ -78,8 +77,6 @@ module VagrantPlugins
           # b.use Customize, "pre-boot"
           b.use Boot
           b.use WaitForVMTools
-          b.use WaitForNetwork
-          b.use GetNetworkAddress
           # b.use Customize, "post-boot"
           b.use WaitForCommunicator, [:starting, :running]
           # b.use CheckGuestAdditions
@@ -91,7 +88,6 @@ module VagrantPlugins
           b.use CheckCreated
           b.use CheckAccessible
           b.use CheckRunning
-          b.use GetNetworkAddress
           b.use SSHExec
         end
       end
@@ -101,7 +97,6 @@ module VagrantPlugins
           b.use CheckCreated
           b.use CheckAccessible
           b.use CheckRunning
-          b.use GetNetworkAddress
           b.use SSHRun
         end
       end
@@ -142,7 +137,7 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, Created do |env, b2|
             if !env[:result]
-              b2.use HandleBoxUrl
+              b2.use HandleBox
             end
           end
 
@@ -160,6 +155,29 @@ module VagrantPlugins
         end
       end
 
+      # This action just runs the provisioners on the machine.
+      def self.action_provision
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use ConfigValidate
+          b.use Call, Created do |env1, b2|
+            if !env1[:result]
+              b2.use MessageNotCreated
+              next
+            end
+
+            b2.use Call, IsRunning do |env2, b3|
+              if !env2[:result]
+                b3.use MessageNotRunning
+                next
+              end
+
+              b3.use CheckAccessible
+              b3.use Provision
+            end
+          end
+        end
+      end
+
       def self.action_halt
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, Created do |env, b2|
@@ -172,7 +190,6 @@ module VagrantPlugins
               end
 
               b.use WaitForVMTools
-              b.use GetNetworkAddress
 
               b2.use Call, GracefulHalt, :poweroff, :running do |env2, b3|
                 if !env2[:result]
