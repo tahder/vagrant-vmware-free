@@ -8,6 +8,7 @@ module VagrantPlugins
       class Fusion < Base
         include VagrantPlugins::ProviderVMwareFree::Util::VMX
         include VagrantPlugins::ProviderVMwareFree::Driver::VIX
+
         INVENTORY = File.join(ENV['HOME'], '.vagrant.d', 'vmware.yml')
 
         attr_reader :vmx_path
@@ -20,12 +21,16 @@ module VagrantPlugins
 
           @host_handle = get_host_handle
 
+          # Create inventory file, if doesn't exist
+          File.open(INVENTORY, "w") { |f| f.write('--- {}')} unless File.exists?(INVENTORY)
+
           if @uuid
             read_vms.each do |k, v|
               @vmx_path = v[:config] if k == uuid
             end
             @vm_handle = get_vm_handle(@host_handle, @uuid)
           end
+
         end
 
         def import(vmx_file, dest_file)
@@ -37,14 +42,11 @@ module VagrantPlugins
           raise VIXError, "VixError: #{code}" if (code != 0)
           new_uuid = SecureRandom.uuid
 
-          if File.exists?(INVENTORY)
-            inventory = YAML.load_file(INVENTORY)
-          else
-            inventory = Hash.new
-          end
-          inventory[new_uuid] = { config: dest_file }
-
-          File.open(INVENTORY, 'wb') do |f|
+          File.open(INVENTORY, "r+b") do |f|
+            f.flock(File::LOCK_EX)
+            inventory = YAML.load(f.read)
+            inventory[new_uuid] = { config: dest_file }
+            f.rewind
             f.write(inventory.to_yaml)
           end
 
@@ -57,9 +59,11 @@ module VagrantPlugins
           Vix_ReleaseHandle(jobHandle)
           raise VIXError, code: code if (code != 0)
 
-          inventory = YAML.load_file(INVENTORY)
-          inventory.delete @uuid
-          File.open(INVENTORY, 'wb') do |f|
+          File.open(INVENTORY, "r+b") do |f|
+            f.flock(File::LOCK_EX)
+            inventory = YAML.load(f.read)
+            inventory.delete @uuid
+            f.rewind
             f.write(inventory.to_yaml)
           end
 
@@ -71,8 +75,7 @@ module VagrantPlugins
         end
 
         def vm_exists?(uuid)
-          inventory = YAML.load_file(INVENTORY)
-          inventory.each do |k, v|
+          read_vms.each do |k, v|
             return true if k == uuid
           end
 
@@ -82,7 +85,13 @@ module VagrantPlugins
         # Follwing methods are stubs for now
 
         def read_vms
-          YAML.load_file(INVENTORY)
+          inventory = nil
+          File.open(INVENTORY, "rb") do |f|
+            f.flock(File::LOCK_SH)
+            inventory = YAML.load(f.read)
+          end
+
+          inventory
         end
 
         def set_value(key, value)
@@ -93,9 +102,11 @@ module VagrantPlugins
         end
 
         def set_name(name)
-          inventory = read_vms
-          inventory[@uuid]['name'] = name
-          File.open(INVENTORY, 'wb') do |f|
+          File.open(INVENTORY, "r+b") do |f|
+            f.flock(File::LOCK_EX)
+            inventory = YAML.load(f.read)
+            inventory[@uuid]['name'] = name
+            f.rewind
             f.write(inventory.to_yaml)
           end
 

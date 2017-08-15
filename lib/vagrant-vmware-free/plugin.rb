@@ -9,7 +9,7 @@ module VagrantPlugins
       Manage and control VMWare Workstation and VMWare Fusion virtual machines
       EOF
 
-      provider :vmware_free do
+      provider :vmware_free, parallel: true do
         require_relative('provider')
         Provider
       end
