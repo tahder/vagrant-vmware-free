@@ -13,7 +13,7 @@ Install
 ==
 
 ```
-git clone https://github.com/dguerri/vagrant-vmware-free.git
+git clone https://github.com/tahder/vagrant-vmware-free.git
 cd vagrant-vmware-free
 gem build vagrant-vmware-free.gemspec
 vagrant plugin install ./vagrant-vmware-free-0.1.0.gem
